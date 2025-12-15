@@ -5,9 +5,10 @@ part 'health_model.g.dart';
 @JsonSerializable()
 class HealthModel {
   @JsonKey(includeToJson: false)
-  final String healthStatus;
+  @JsonKey(name: 'status')
+  final String status;
 
-  HealthModel({required this.healthStatus});
+  HealthModel({required this.status});
 
   factory HealthModel.fromJson(Map<String, dynamic> json) =>
       _$HealthModelFromJson(json);

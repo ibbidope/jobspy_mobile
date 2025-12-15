@@ -7,7 +7,7 @@ part of 'health_model.dart';
 // **************************************************************************
 
 HealthModel _$HealthModelFromJson(Map<String, dynamic> json) =>
-    HealthModel(healthStatus: json['healthStatus'] as String);
+    HealthModel(status: json['status'] as String);
 
 Map<String, dynamic> _$HealthModelToJson(HealthModel instance) =>
     <String, dynamic>{};

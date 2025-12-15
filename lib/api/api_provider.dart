@@ -12,6 +12,7 @@ class ApiProvider {
           baseUrl: ApiConstants.baseUrl,
           connectTimeout: const Duration(seconds: 20),
           receiveTimeout: const Duration(seconds: 40),
+          responseType: ResponseType.plain,
         ),
       ) {
     _dio.interceptors.add(
