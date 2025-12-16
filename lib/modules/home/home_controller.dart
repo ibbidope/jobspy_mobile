@@ -149,6 +149,7 @@ class HomeController extends GetxController {
       locationInvalid.value = false;
     }
   }
+
   void setResultsWanted(int? value) {
     if (value == null) {
       resultsWanted.value = 0;
@@ -168,12 +169,14 @@ class HomeController extends GetxController {
     hoursOld.value = value.clamp(1, 720);
     hoursInvalid.value = false;
   }
+
   void setCountryIndeed(String value) {
     countryIndeed.value = value;
     if (value.isNotEmpty) {
       countryInvalid.value = false;
     }
   }
+
   void setLinkedinFetchDescription(bool value) =>
       linkedinFetchDescription.value = value;
 }
