@@ -15,6 +15,9 @@ class HomeView extends GetView<HomeController> {
   static const String _searchPlaceholder = 'e.g. Product Designer';
   static const String _locationPlaceholder = 'e.g. Islamabad, Pakistan';
   static const String _indeedCountryPlaceholder = 'e.g. Pakistan';
+  static const String _repoUrl = 'https://github.com/ibbidope/jobspy_mobile';
+  static const String _linkedInUrl =
+      'https://www.linkedin.com/in/ibrahimhassan99/';
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +51,8 @@ class HomeView extends GetView<HomeController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHero(),
+              SizedBox(height: 14.h),
+              _buildRepoCard(),
               SizedBox(height: 14.h),
               _buildHealthCard(),
               SizedBox(height: 14.h),
@@ -110,6 +115,146 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRepoCard() {
+    final githubColor = const Color(0xFF24292E);
+    final linkedinColor = const Color(0xFF0A66C2);
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ColorConstants.surface,
+            ColorConstants.primary.withValues(alpha: 0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: ColorConstants.primary.withValues(alpha: 0.15),
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(14.w),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [ColorConstants.primary, ColorConstants.accent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: ColorConstants.primary.withOpacity(0.18),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.public, color: Colors.white),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Built with love for the community',
+                  style: TextStyle(
+                    fontSize: 15.5.sp,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 6.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(
+                      color: ColorConstants.primary.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.code, size: 18.w, color: githubColor),
+                      SizedBox(width: 6.w),
+                      Text(
+                        'Open-source & hiring friendly',
+                        style: TextStyle(
+                          color: Colors.grey.shade800,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12.5.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8.h),
+                Wrap(
+                  spacing: 8.w,
+                  runSpacing: 8.h,
+                  children: [
+                    _buildLinkButton(
+                      label: 'GitHub',
+                      icon: Icons.code,
+                      color: githubColor,
+                      onTap: () => _openJobLink(_repoUrl),
+                    ),
+                    _buildLinkButton(
+                      label: 'LinkedIn',
+                      icon: Icons.work_outline,
+                      color: linkedinColor,
+                      onTap: () => _openJobLink(_linkedInUrl),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLinkButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, color: Colors.white),
+      label: Text(label, style: const TextStyle(color: Colors.white)),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        elevation: 2,
       ),
     );
   }

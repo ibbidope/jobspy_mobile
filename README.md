@@ -1,44 +1,24 @@
 # JobSpy Mobile
 
-Flutter client for the JobSpy API: check service health, search LinkedIn/Indeed jobs, and open job listings in their native app or browser.
+A Flutter client for the JobSpy API that fetches the latest LinkedIn and Indeed postings through a simple mobile form.
 
-## Features
-- API health card with one-tap refresh and animated status.
-- Job search form with validation for required fields (site selection, search term, location, results count, hours old, Indeed country when applicable).
-- Job results list with site badges and external launch for job links.
-- Shared UI components (cards, chips, inputs) and GetX for state management/routing.
+## What it does
+- Check API health with a one-tap refresh and animated status indicator.
+- Choose LinkedIn and/or Indeed, toggle LinkedIn description fetch, and submit a unified search.
+- Capture search term, location, results wanted (1-50), hours old (1-720), and require an Indeed country only when Indeed is selected.
+- Display results with site badges, job type tags, company/location details, and counts.
+- Open job pages externally using direct links when available, with graceful fallbacks.
+- Show inline validation and error banners for missing fields or API failures.
 
-## Requirements
-- Flutter SDK 3.9.2+
-- Android Studio or Xcode CLI tools for device builds
-- A running JobSpy API endpoint
+## Tech and architecture
+- Flutter 3.9 with GetX for routing, bindings, and reactive state management.
+- Dio-powered ApiRepository with models generated via json_serializable.
+- Responsive layout via flutter_screenutil plus shared widgets (cards, chips, inputs, loading indicator).
+- Environment config via .env (API base URL) loaded at startup.
 
-## Setup
-1. Install Flutter dependencies: `flutter pub get`
-2. Configure environment:
-   ```bash
-   cp .env.example .env  # if you have an example; otherwise create .env
-   ```
-   `.env` must include:
-   ```env
-   API_BASE_URL=https://your-api-host.com
-   ```
-3. Generate json_serializable models if you change them:
-   ```bash
-   dart run build_runner build --delete-conflicting-outputs
-   ```
-4. Run the app on a device/emulator:
-   ```bash
-   flutter run
-   ```
-
-## Project Structure
-- `lib/main.dart` â€” app entry, binds routes and global bindings.
-- `lib/api/` â€” ApiProvider (Dio), repository, and constants.
-- `lib/modules/home/` â€” home binding/controller/view for health + job search.
-- `lib/shared/widgets/` â€” reusable UI components (inputs, cards, chips).
-- `lib/models/` â€” JSON models for health and jobs.
-
-## Notes
-- If you see `MissingPluginException` for `url_launcher`, run `flutter clean && flutter pub get`, then rebuild on a real device/emulator.
-- The default `test/widget_test.dart` is the stock Flutter counter test and does not cover current screens.
+## Key files
+- lib/main.dart – app bootstrap with ScreenUtil and GetMaterialApp.
+- lib/modules/home/ – health + job search UI and controller logic.
+- lib/api/ – provider, repository, and API constants.
+- lib/models/ – HealthModel and JobModel with generated serializers.
+- lib/shared/ – reusable widgets, constants, and utilities.
