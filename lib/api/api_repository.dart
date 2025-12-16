@@ -30,10 +30,7 @@ class ApiRepository {
 
   Future<List<JobModel>> getJobs(Map<String, dynamic> payload) async {
     try {
-      final response = await apiProvider.post(
-        ApiConstants.getJobs,
-        payload,
-      );
+      final response = await apiProvider.post(ApiConstants.getJobs, payload);
 
       if (response.statusCode == 200) {
         final data = _parseJson(response.data);
@@ -65,7 +62,10 @@ dynamic _parseJson(dynamic data) {
   }
 
   if (data is String) {
-    final cleaned = data.replaceAll(RegExp(r'\bNaN\b', caseSensitive: false), 'null');
+    final cleaned = data.replaceAll(
+      RegExp(r'\bNaN\b', caseSensitive: false),
+      'null',
+    );
     return jsonDecode(cleaned);
   }
 
