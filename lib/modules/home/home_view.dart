@@ -15,7 +15,7 @@ class HomeView extends GetView<HomeController> {
   static const String _searchPlaceholder = 'e.g. Product Designer';
   static const String _locationPlaceholder = 'e.g. Islamabad, Pakistan';
   static const String _indeedCountryPlaceholder = 'e.g. Pakistan';
-  static const String _repoUrl = 'https://github.com/ibbidope/jobspy_mobile';
+  static const String _repoUrl = 'https://github.com/ibbidope';
   static const String _linkedInUrl =
       'https://www.linkedin.com/in/ibrahimhassan99/';
 
@@ -161,7 +161,7 @@ class HomeView extends GetView<HomeController> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: ColorConstants.primary.withOpacity(0.18),
+                  color: ColorConstants.primary.withValues(alpha: 0.18),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),
