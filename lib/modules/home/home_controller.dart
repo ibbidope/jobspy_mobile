@@ -16,13 +16,20 @@ class HomeController extends GetxController {
   final RxBool isFetchingJobs = false.obs;
   final RxnString jobsError = RxnString();
 
+  // Field-level validation state
+  final RxBool searchTermInvalid = false.obs;
+  final RxBool locationInvalid = false.obs;
+  final RxBool countryInvalid = false.obs;
+  final RxBool resultsInvalid = false.obs;
+  final RxBool hoursInvalid = false.obs;
+
   // Job search form state
   final RxList<String> selectedSites = <String>['linkedin', 'indeed'].obs;
-  final RxString searchTerm = 'Graphic Designer'.obs;
-  final RxString location = 'Islamabad, Pakistan'.obs;
+  final RxString searchTerm = ''.obs;
+  final RxString location = ''.obs;
   final RxInt resultsWanted = 10.obs;
   final RxInt hoursOld = 72.obs;
-  final RxString countryIndeed = 'Pakistan'.obs;
+  final RxString countryIndeed = ''.obs;
   final RxBool linkedinFetchDescription = false.obs;
 
   @override
@@ -49,10 +56,15 @@ class HomeController extends GetxController {
   }
 
   Future<void> fetchJobs() async {
-    isFetchingJobs.value = true;
     jobsError.value = null;
+    if (!_validateForm()) {
+      return;
+    }
+
+    final payload = _buildJobPayload();
+
+    isFetchingJobs.value = true;
     try {
-      final payload = _buildJobPayload();
       final result = await apiRepository.getJobs(payload);
       jobs.assignAll(result);
     } catch (e) {
@@ -74,6 +86,48 @@ class HomeController extends GetxController {
     };
   }
 
+  bool _validateForm() {
+    bool isValid = true;
+    searchTermInvalid.value = false;
+    locationInvalid.value = false;
+    countryInvalid.value = false;
+    resultsInvalid.value = false;
+    hoursInvalid.value = false;
+    jobsError.value = null;
+
+    if (selectedSites.isEmpty) {
+      jobsError.value = 'Select at least one site';
+      isValid = false;
+    }
+
+    if (searchTerm.value.trim().isEmpty) {
+      searchTermInvalid.value = true;
+      isValid = false;
+    }
+
+    if (location.value.trim().isEmpty) {
+      locationInvalid.value = true;
+      isValid = false;
+    }
+
+    if (countryIndeed.value.trim().isEmpty) {
+      countryInvalid.value = true;
+      isValid = false;
+    }
+
+    if (resultsWanted.value <= 0) {
+      resultsInvalid.value = true;
+      isValid = false;
+    }
+
+    if (hoursOld.value <= 0) {
+      hoursInvalid.value = true;
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
   void toggleSite(String site) {
     if (selectedSites.contains(site)) {
       selectedSites.remove(site);
@@ -82,11 +136,44 @@ class HomeController extends GetxController {
     }
   }
 
-  void setSearchTerm(String value) => searchTerm.value = value;
-  void setLocation(String value) => location.value = value;
-  void setResultsWanted(int value) => resultsWanted.value = value.clamp(1, 50);
-  void setHoursOld(int value) => hoursOld.value = value.clamp(1, 720);
-  void setCountryIndeed(String value) => countryIndeed.value = value;
+  void setSearchTerm(String value) {
+    searchTerm.value = value;
+    if (value.isNotEmpty) {
+      searchTermInvalid.value = false;
+    }
+  }
+
+  void setLocation(String value) {
+    location.value = value;
+    if (value.isNotEmpty) {
+      locationInvalid.value = false;
+    }
+  }
+  void setResultsWanted(int? value) {
+    if (value == null) {
+      resultsWanted.value = 0;
+      resultsInvalid.value = true;
+      return;
+    }
+    resultsWanted.value = value.clamp(1, 50);
+    resultsInvalid.value = false;
+  }
+
+  void setHoursOld(int? value) {
+    if (value == null) {
+      hoursOld.value = 0;
+      hoursInvalid.value = true;
+      return;
+    }
+    hoursOld.value = value.clamp(1, 720);
+    hoursInvalid.value = false;
+  }
+  void setCountryIndeed(String value) {
+    countryIndeed.value = value;
+    if (value.isNotEmpty) {
+      countryInvalid.value = false;
+    }
+  }
   void setLinkedinFetchDescription(bool value) =>
       linkedinFetchDescription.value = value;
 }

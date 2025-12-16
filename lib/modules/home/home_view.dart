@@ -1,160 +1,117 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/job_model.dart';
+import '../../shared/constants/colors.dart';
 import '../../shared/utils/platform_loading_indicator.dart';
+import '../../shared/widgets/widgets.dart';
 import 'home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
+  static const String _searchPlaceholder = 'e.g. Product Designer';
+  static const String _locationPlaceholder = 'e.g. Islamabad, Pakistan';
+  static const String _indeedCountryPlaceholder = 'e.g. Pakistan';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: ColorConstants.surface,
       appBar: AppBar(
-        title: const Text('JobSpy Mobile'),
-        centerTitle: true,
+        backgroundColor: ColorConstants.surface,
         elevation: 0,
+        centerTitle: true,
+        title: Column(
+          children: [
+            Text(
+              'JobSpy Mobile',
+              style: TextStyle(
+                color: ColorConstants.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18.sp,
+              ),
+            ),
+            Text(
+              'Scrape LinkedIn & Indeed',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12.sp),
+            ),
+          ],
+        ),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await Future.wait([
-              controller.fetchHealth(),
-              controller.fetchJobs(),
-            ]);
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.all(16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHealthCard(),
-                SizedBox(height: 16.h),
-                _buildSearchForm(),
-                SizedBox(height: 16.h),
-                _buildJobsSection(),
-              ],
-            ),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHero(),
+              SizedBox(height: 14.h),
+              _buildHealthCard(),
+              SizedBox(height: 14.h),
+              _buildSearchCard(),
+              SizedBox(height: 14.h),
+              _buildJobsSection(),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSearchForm() {
-    return Obx(() {
-      return Card(
-        elevation: 2,
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHero() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(vertical: 18.h, horizontal: 16.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [ColorConstants.primary, ColorConstants.accent],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(18.r),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Find your next role',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          const Text(
+            'Search LinkedIn and Indeed with one tap.',
+            style: TextStyle(color: Colors.white70),
+          ),
+          SizedBox(height: 12.h),
+          Row(
             children: [
-              const Text(
-                'Job Search',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 12.h),
-              Wrap(
-                spacing: 10.w,
-                runSpacing: 6.h,
-                children: ['linkedin', 'indeed'].map((site) {
-                  final isSelected = controller.selectedSites.contains(site);
-                  return FilterChip(
-                    label: Text(site),
-                    selected: isSelected,
-                    onSelected: (_) => controller.toggleSite(site),
-                    selectedColor: const Color(
-                      0xFF2E8BFD,
-                    ).withValues(alpha: 0.15),
-                    checkmarkColor: const Color(0xFF2E8BFD),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 12.h),
-              TextFormField(
-                initialValue: controller.searchTerm.value,
-                decoration: const InputDecoration(
-                  labelText: 'Search term',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onChanged: controller.setSearchTerm,
-              ),
-              SizedBox(height: 12.h),
-              TextFormField(
-                initialValue: controller.location.value,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.location_on_outlined),
-                ),
-                onChanged: controller.setLocation,
-              ),
-              SizedBox(height: 12.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: _NumberField(
-                      label: 'Results wanted',
-                      value: controller.resultsWanted.value,
-                      onChanged: (v) => controller.setResultsWanted(v ?? 10),
-                      min: 1,
-                      max: 50,
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: _NumberField(
-                      label: 'Hours old',
-                      value: controller.hoursOld.value,
-                      onChanged: (v) => controller.setHoursOld(v ?? 72),
-                      min: 1,
-                      max: 720,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 12.h),
-              TextFormField(
-                initialValue: controller.countryIndeed.value,
-                decoration: const InputDecoration(
-                  labelText: 'Indeed country',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.flag_outlined),
-                ),
-                onChanged: controller.setCountryIndeed,
-              ),
-              SizedBox(height: 8.h),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('LinkedIn fetch description'),
-                value: controller.linkedinFetchDescription.value,
-                onChanged: controller.setLinkedinFetchDescription,
-              ),
-              SizedBox(height: 8.h),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: controller.isFetchingJobs.value
-                      ? null
-                      : controller.fetchJobs,
-                  icon: const Icon(Icons.search),
-                  label: const Text('Fetch Jobs'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
+              Pill(text: 'Realtime scrape', icon: Icons.bolt),
+              SizedBox(width: 8.w),
+              Obx(
+                () => Pill(
+                  text: '${controller.selectedSites.length} sites',
+                  icon: Icons.public,
                 ),
               ),
             ],
           ),
-        ),
-      );
-    });
+        ],
+      ),
+    );
   }
 
   Widget _buildHealthCard() {
@@ -171,51 +128,154 @@ class HomeView extends GetView<HomeController> {
         label = 'Online';
       } else if (status == null) {
         statusColor = Colors.grey;
-        label = 'Unknown';
+        label = 'Down Time';
       } else {
         statusColor = Colors.red;
         label = status;
       }
 
-      return Card(
-        elevation: 2,
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Row(
-            children: [
-              if (isLoading)
-                const PlatformLoadingIndicator()
-              else
-                Icon(Icons.circle, color: statusColor, size: 18.w),
-              SizedBox(width: 12.w),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'API Health',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+      return AppCard(
+        child: Row(
+          children: [
+            Icon(Icons.circle, color: statusColor, size: 18.w),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'API Health',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
                     ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      error ?? label,
-                      style: TextStyle(
-                        color: error != null ? Colors.red : Colors.black87,
-                      ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    error ?? label,
+                    style: TextStyle(
+                      color: error != null ? Colors.red : Colors.black87,
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            _SpinningRefresh(
+              spinning: isLoading,
+              onTap: isLoading ? null : controller.fetchHealth,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildSearchCard() {
+    return Obx(() {
+      return AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Job Search',
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w700),
+            ),
+            SizedBox(height: 10.h),
+            Wrap(
+              spacing: 10.w,
+              runSpacing: 6.h,
+              children: ['linkedin', 'indeed'].map((site) {
+                final isSelected = controller.selectedSites.contains(site);
+                return FilterChip(
+                  label: Text(site),
+                  selected: isSelected,
+                  onSelected: (_) => controller.toggleSite(site),
+                  selectedColor: ColorConstants.primary.withValues(alpha: 0.12),
+                  checkmarkColor: ColorConstants.primary,
+                );
+              }).toList(),
+            ),
+            SizedBox(height: 12.h),
+            TextInput(
+              placeholder: _searchPlaceholder,
+              label: 'Search term',
+              icon: Icons.search,
+              onChanged: controller.setSearchTerm,
+              hasError: controller.searchTermInvalid.value,
+            ),
+            SizedBox(height: 10.h),
+            TextInput(
+              placeholder: _locationPlaceholder,
+              label: 'Location',
+              icon: Icons.location_on_outlined,
+              onChanged: controller.setLocation,
+              hasError: controller.locationInvalid.value,
+            ),
+            SizedBox(height: 10.h),
+            Row(
+              children: [
+                Expanded(
+                  child: NumberInput(
+                    label: 'Results wanted',
+                    value: controller.resultsWanted.value,
+                    onChanged: controller.setResultsWanted,
+                    min: 1,
+                    max: 50,
+                    hasError: controller.resultsInvalid.value,
+                  ),
+                ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: NumberInput(
+                    label: 'Hours old',
+                    value: controller.hoursOld.value,
+                    onChanged: controller.setHoursOld,
+                    min: 1,
+                    max: 720,
+                    hasError: controller.hoursInvalid.value,
+                  ),
+                ),
+              ],
+            ),
+            if (controller.selectedSites.contains('indeed')) ...[
+              SizedBox(height: 10.h),
+              TextInput(
+                placeholder: _indeedCountryPlaceholder,
+                label: 'Indeed country',
+                icon: Icons.flag_outlined,
+                onChanged: controller.setCountryIndeed,
+                hasError: controller.countryInvalid.value,
+              ),
+              SizedBox(height: 6.h),
+            ],
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('LinkedIn fetch description'),
+              value: controller.linkedinFetchDescription.value,
+              onChanged: controller.setLinkedinFetchDescription,
+            ),
+            SizedBox(height: 6.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: controller.isFetchingJobs.value
+                    ? null
+                    : controller.fetchJobs,
+                icon: const Icon(Icons.search, color: Colors.white),
+                label: const Text(
+                  'Fetch Jobs',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorConstants.primary,
+                  padding: EdgeInsets.symmetric(vertical: 14.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
                 ),
               ),
-              IconButton(
-                onPressed: isLoading ? null : () => controller.fetchHealth(),
-                icon: const Icon(Icons.refresh),
-                tooltip: 'Refresh health',
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     });
@@ -243,28 +303,60 @@ class HomeView extends GetView<HomeController> {
       }
 
       if (controller.jobs.isEmpty) {
-        return _MessageCard(
-          title: 'Jobs',
-          message: 'No jobs found for the current filters.',
-          icon: Icons.work_outline,
-          color: Colors.grey,
-          onRetry: controller.fetchJobs,
-        );
+        return SizedBox.shrink();
       }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Latest Jobs',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Latest Jobs',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 4.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: ColorConstants.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    child: Obx(
+                      () => Text(
+                        '${controller.jobs.length} results',
+                        style: TextStyle(
+                          color: ColorConstants.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                onPressed: controller.fetchJobs,
+                icon: const Icon(Icons.filter_alt_outlined, color: Colors.grey),
+                tooltip: 'Refetch with current filters',
+              ),
+            ],
           ),
           SizedBox(height: 8.h),
           ListView.separated(
             itemCount: controller.jobs.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            separatorBuilder: (_, __) => SizedBox(height: 12.h),
+            separatorBuilder: (_, _) => SizedBox(height: 12.h),
             itemBuilder: (_, index) {
               final job = controller.jobs[index];
               return _JobTile(job: job);
@@ -283,71 +375,152 @@ class _JobTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(14.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              job.title ?? 'Untitled role',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              job.company ?? 'Unknown company',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.location_on_outlined, size: 16),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    job.location ?? 'Location not provided',
-                    style: const TextStyle(fontSize: 13),
-                    overflow: TextOverflow.ellipsis,
+    final accent = ColorConstants.primary;
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            job.title ?? 'Untitled role',
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
+          ),
+          SizedBox(height: 4.h),
+          Row(
+            children: [
+              Icon(Icons.business_center_outlined, size: 16, color: accent),
+              SizedBox(width: 6.w),
+              Expanded(
+                child: Text(
+                  job.company ?? 'Unknown company',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (job.jobType != null)
-                  _Tag(label: job.jobType!, color: const Color(0xFF2E8BFD)),
-                _Tag(
-                  label: job.site != null ? job.site!.toUpperCase() : 'UNKNOWN',
-                  color: Colors.grey.shade400,
+              ),
+            ],
+          ),
+          SizedBox(height: 6.h),
+          Row(
+            children: [
+              const Icon(Icons.location_on_outlined, size: 16),
+              SizedBox(width: 4.w),
+              Expanded(
+                child: Text(
+                  job.location ?? 'Location not provided',
+                  style: TextStyle(fontSize: 13.sp),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                if (job.jobUrl != null || job.jobUrlDirect != null)
-                  TextButton(
-                    onPressed: () {
-                      final url = job.jobUrlDirect ?? job.jobUrl;
-                      if (url != null) {
-                        Get.snackbar(
-                          'Job Link',
-                          url,
-                          snackPosition: SnackPosition.BOTTOM,
-                          duration: const Duration(seconds: 3),
-                        );
-                      }
-                    },
-                    child: const Text('Copy Link'),
-                  ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              if (job.jobType != null)
+                TagChip(label: job.jobType!, color: accent),
+              const Spacer(),
+              TagChip(
+                label: job.site != null ? job.site!.toUpperCase() : 'UNKNOWN',
+                color: Colors.grey.shade500,
+              ),
+            ],
+          ),
+          SizedBox(height: 10.h),
+          Row(
+            children: [
+              if (job.jobUrl != null || job.jobUrlDirect != null)
+                TextButton.icon(
+                  onPressed: () => _openJobLink(job.jobUrlDirect ?? job.jobUrl),
+                  icon: const Icon(Icons.open_in_new),
+                  label: const Text('Open job page'),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _openJobLink(String? url) async {
+  if (url == null) {
+    Get.snackbar(
+      'Link unavailable',
+      'No URL provided for this job',
+      duration: const Duration(seconds: 3),
+    );
+    return;
+  }
+
+  final uri = Uri.tryParse(url);
+  if (uri == null) {
+    Get.snackbar('Invalid link', url, duration: const Duration(seconds: 3));
+    return;
+  }
+
+  final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+  if (!launched) {
+    Get.snackbar(
+      'Could not open link',
+      url,
+      duration: const Duration(seconds: 3),
+    );
+  }
+}
+
+class _SpinningRefresh extends StatefulWidget {
+  const _SpinningRefresh({required this.spinning, this.onTap});
+
+  final bool spinning;
+  final VoidCallback? onTap;
+
+  @override
+  State<_SpinningRefresh> createState() => _SpinningRefreshState();
+}
+
+class _SpinningRefreshState extends State<_SpinningRefresh>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    );
+    if (widget.spinning) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _SpinningRefresh oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.spinning && !_controller.isAnimating) {
+      _controller.repeat();
+    } else if (!widget.spinning && _controller.isAnimating) {
+      _controller.stop();
+      _controller.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _controller,
+      child: IconButton(
+        onPressed: widget.spinning ? null : widget.onTap,
+        icon: const Icon(Icons.refresh),
+        tooltip: 'Refresh health',
       ),
     );
   }
@@ -370,103 +543,32 @@ class _MessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: TextStyle(color: color.withValues(alpha: 0.9)),
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 8),
-              TextButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color),
+              SizedBox(width: 8.w),
+              Text(
+                title,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w700),
               ),
             ],
+          ),
+          SizedBox(height: 8.h),
+          Text(message, style: TextStyle(color: color.withValues(alpha: 0.9))),
+          if (onRetry != null) ...[
+            SizedBox(height: 8.h),
+            TextButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
+            ),
           ],
-        ),
+        ],
       ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  const _Tag({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: color.withValues(alpha: 0.9),
-        ),
-      ),
-    );
-  }
-}
-
-class _NumberField extends StatelessWidget {
-  const _NumberField({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    required this.min,
-    required this.max,
-  });
-
-  final String label;
-  final int value;
-  final void Function(int?) onChanged;
-  final int min;
-  final int max;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value.toString(),
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      keyboardType: TextInputType.number,
-      onChanged: (val) {
-        final parsed = int.tryParse(val);
-        if (parsed != null) {
-          onChanged(parsed.clamp(min, max));
-        }
-      },
     );
   }
 }
