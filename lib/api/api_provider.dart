@@ -15,9 +15,11 @@ class ApiProvider {
           responseType: ResponseType.plain,
         ),
       ) {
-    _dio.interceptors.add(
-      LogInterceptor(requestBody: true, responseBody: true),
-    );
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        LogInterceptor(requestBody: true, responseBody: true),
+      );
+    }
   }
 
   Future<Response> post(String path, dynamic data) async {
