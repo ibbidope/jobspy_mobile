@@ -184,6 +184,7 @@ class HomeView extends GetView<HomeController> {
                 ),
                 SizedBox(height: 6.h),
                 Container(
+                  width: double.infinity,
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
                     vertical: 6.h,
@@ -196,16 +197,17 @@ class HomeView extends GetView<HomeController> {
                     ),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.code, size: 18.w, color: githubColor),
                       SizedBox(width: 6.w),
-                      Text(
-                        'Open-source & hiring friendly',
-                        style: TextStyle(
-                          color: Colors.grey.shade800,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12.5.sp,
+                      Expanded(
+                        child: Text(
+                          'Open-source & hiring friendly',
+                          style: TextStyle(
+                            color: Colors.grey.shade800,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12.5.sp,
+                          ),
                         ),
                       ),
                     ],
@@ -438,11 +440,14 @@ class HomeView extends GetView<HomeController> {
       }
 
       if (controller.jobsError.value != null) {
+        final message = controller.jobsError.value!;
+        final isNoResults =
+            message == "No jobs found. Try adjusting your filters and retry.";
         return _MessageCard(
           title: 'Jobs',
-          message: controller.jobsError.value!,
-          icon: Icons.error_outline,
-          color: Colors.red,
+          message: message,
+          icon: isNoResults ? Icons.search_off : Icons.error_outline,
+          color: isNoResults ? Colors.grey : Colors.red,
           onRetry: controller.fetchJobs,
         );
       }

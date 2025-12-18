@@ -67,23 +67,32 @@ class HomeController extends GetxController {
     try {
       final result = await apiRepository.getJobs(payload);
       jobs.assignAll(result);
+      if (result.isEmpty) {
+        jobsError.value =
+            "No jobs found. Try adjusting your filters and retry.";
+      }
     } catch (e) {
-      jobsError.value = 'Failed to load jobs';
+      jobsError.value = 'Failed to load jobs. Please try again.';
     } finally {
       isFetchingJobs.value = false;
     }
   }
 
   Map<String, dynamic> _buildJobPayload() {
-    return {
+    final payload = <String, dynamic>{
       'site_name': selectedSites.toList(),
       'search_term': searchTerm.value.trim(),
       'location': location.value.trim(),
       'results_wanted': resultsWanted.value,
       'hours_old': hoursOld.value,
-      'country_indeed': countryIndeed.value.trim(),
       'linkedin_fetch_description': linkedinFetchDescription.value,
     };
+
+    if (selectedSites.contains('indeed')) {
+      payload['country_indeed'] = countryIndeed.value.trim();
+    }
+
+    return payload;
   }
 
   bool _validateForm() {
@@ -110,7 +119,8 @@ class HomeController extends GetxController {
       isValid = false;
     }
 
-    if (countryIndeed.value.trim().isEmpty) {
+    final wantsIndeed = selectedSites.contains('indeed');
+    if (wantsIndeed && countryIndeed.value.trim().isEmpty) {
       countryInvalid.value = true;
       isValid = false;
     }
