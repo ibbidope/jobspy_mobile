@@ -59,7 +59,7 @@ jobs:
         run: flutter build apk --release
 
       - name: Upload signed APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: signed-android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
