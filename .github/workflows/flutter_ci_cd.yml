@@ -31,7 +31,7 @@ jobs:
           storePassword=$KEYSTORE_PASSWORD
           keyPassword=$KEY_PASSWORD
           keyAlias=$KEY_ALIAS
-          storeFile=android/upload-keystore.jks
+          storeFile=../upload-keystore.jks
           EOF
 
       - name: Create .env file
