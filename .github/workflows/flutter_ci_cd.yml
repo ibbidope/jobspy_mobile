@@ -34,6 +34,12 @@ jobs:
           storeFile=android/upload-keystore.jks
           EOF
 
+      - name: Create .env file
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: |
+          echo "API_BASE_URL=$API_BASE_URL" >> .env
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
