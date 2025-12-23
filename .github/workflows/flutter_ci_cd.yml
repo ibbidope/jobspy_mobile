@@ -87,6 +87,24 @@ jobs:
           release_name: Release ${{ steps.semver.outputs.new_tag }}
           draft: false
           prerelease: false
+          body: |
+            ## JobSpy Mobile
+            - Flutter client for the JobSpy API: quick health checks plus LinkedIn/Indeed search in one place.
+            - GetX-powered navigation/state, validated inputs, and clear error/no-results messaging.
+            - Production build is obfuscated and release-signed; split debug symbols kept out of the artifact.
+
+            ## Highlights
+            - CI gates on analyze + tests before tagging and releasing (robots approved this drop).
+            - Auto SemVer bump, tagged release, and packaged artifact from main.
+            - Debug-only network logging so production stays quiet.
+
+            ## Test drive
+            - Hit your API endpoint and watch the health card flip to green.
+            - Run LinkedIn/Indeed queries with location and recent-hours filters.
+            - Open listings in the native app or browser; verify badges/metadata look sane.
+
+            ## Known beta quirks
+            - Still in beta—if you spot gremlins, file an issue with steps/logs. We fix fast and caffeinated.
 
       # Upload APK to release
       - name: Upload APK to release
