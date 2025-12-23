@@ -74,7 +74,7 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          initial_version: 1.0.0 # starting from version 1.0.0
+          default_bump: patch # Use this instead of 'initial_version'
 
       # Create GitHub Release using bumped tag
       - name: Create GitHub Release
