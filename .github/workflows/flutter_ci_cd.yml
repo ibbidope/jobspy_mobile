@@ -1,4 +1,4 @@
-name: Flutter CI/CD with Auto‑Bump Version & GitHub Release
+name: Flutter CI/CD with Auto Bump & Release
 
 on:
   push:
@@ -10,21 +10,14 @@ permissions:
 
 jobs:
   build-and-release:
-    name: Build & Release Android APK
+    name: Build & Release Android
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # needed to find existing tags
-
-      # ➤ Auto Bump & Tag
-      - name: Bump SemVer and Push Tag
-        id: semver
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # Restore keystore for signing
       - name: Restore keystore from secrets
@@ -71,14 +64,25 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      # Build APK
+      # Build artifacts
+      - name: Build app bundle
+        run: flutter build appbundle --release --obfuscate --split-debug-info=build/debug-info
+
       - name: Build signed APK
-        run: flutter build apk --release
+        run: flutter build apk --release --obfuscate --split-debug-info=build/debug-info
+
+      # Auto bump and tag only after tests/build succeed
+      - name: Bump SemVer and Push Tag
+        id: semver
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          initial_version: 1.0.0
 
       # Create GitHub Release using bumped tag
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: actions/create-release@v1.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -87,9 +91,19 @@ jobs:
           draft: false
           prerelease: false
 
-      # Upload the signed APK as a release asset
+      # Upload release assets
+      - name: Upload AAB to release
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/bundle/release/app-release.aab
+          asset_name: app-release.aab
+          asset_content_type: application/octet-stream
+
       - name: Upload APK to release
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
