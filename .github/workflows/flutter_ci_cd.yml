@@ -1,26 +1,39 @@
-name: Flutter CI/CD
+name: Flutter CI/CD with Auto‑Bump Version & GitHub Release
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
+
+permissions:
+  contents: write # allows tagging and creating releases
 
 jobs:
-  build-android:
-    name: Build Signed Android APK
+  build-and-release:
+    name: Build & Release Android APK
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # needed to find existing tags
 
+      # ➤ Auto Bump & Tag
+      - name: Bump SemVer and Push Tag
+        id: semver
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Restore keystore for signing
       - name: Restore keystore from secrets
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
 
+      # Create key.properties for signing
       - name: Create key.properties file
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -34,40 +47,53 @@ jobs:
           storeFile=../upload-keystore.jks
           EOF
 
-      - name: Create .env file
+      # Create env file
+      - name: Create .env
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
-        run: |
-          echo "API_BASE_URL=$API_BASE_URL" >> .env
+        run: echo "API_BASE_URL=$API_BASE_URL" >> .env
 
+      # Setup Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.38.5"
           channel: stable
 
+      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # Lint & test
       - name: Analyze code
         run: flutter analyze
 
       - name: Run tests
         run: flutter test
 
+      # Build APK
       - name: Build signed APK
         run: flutter build apk --release
 
-      - name: Upload signed APK artifact
-        uses: actions/upload-artifact@v4
+      # Create GitHub Release using bumped tag
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: signed-android-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          tag_name: ${{ steps.semver.outputs.new_tag }}
+          release_name: Release ${{ steps.semver.outputs.new_tag }}
+          draft: false
+          prerelease: false
 
-      - name: Cache Flutter packages
-        uses: actions/cache@v3
+      # Upload the signed APK as a release asset
+      - name: Upload APK to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: |
-            ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: app-release.apk
+          asset_content_type: application/vnd.android.package-archive
