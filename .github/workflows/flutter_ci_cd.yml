@@ -1,0 +1,123 @@
+name: Flutter CI/CD with Auto Bump & Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write # allows tagging and creating releases
+
+jobs:
+  build-and-release:
+    name: Build & Release Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to find existing tags
+
+      # Restore keystore for signing
+      - name: Restore keystore from secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+
+      # Create key.properties for signing
+      - name: Create key.properties file
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          cat <<EOF > android/key.properties
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=../upload-keystore.jks
+          EOF
+
+      # Create env file
+      - name: Create .env
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        run: echo "API_BASE_URL=$API_BASE_URL" >> .env
+
+      # Setup Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.5"
+          channel: stable
+
+      # Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Lint & test
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      # Build signed APK
+      - name: Build signed APK
+        run: flutter build apk --release --obfuscate --split-debug-info=build/debug-info
+
+      # Auto bump and tag only after tests/build succeed
+      - name: Bump SemVer and Push Tag
+        id: semver
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          initial_version: 1.0.0
+
+      # Set tag output to an environment file to avoid deprecated set-output command
+      - name: Set new tag output
+        run: echo "NEW_TAG=${{ steps.semver.outputs.new_tag }}" >> $GITHUB_ENV
+
+      # Create GitHub Release using bumped tag
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: Release ${{ env.NEW_TAG }}
+          draft: false
+          prerelease: false
+          body: |
+            ## JobSpy Mobile
+            - Flutter client for the JobSpy API: quick health checks plus LinkedIn/Indeed search in one place.
+            - GetX-powered navigation/state, validated inputs, and clear error/no-results messaging.
+            - Production build is obfuscated and release-signed; split debug symbols kept out of the artifact.
+
+            ## Highlights
+            - CI gates on analyze + tests before tagging and releasing (robots approved this drop).
+            - Auto SemVer bump, tagged release, and packaged artifact from main.
+            - Debug-only network logging so production stays quiet.
+
+            ## Test drive
+            - Hit your API endpoint and watch the health card flip to green.
+            - Run LinkedIn/Indeed queries with location and recent-hours filters.
+            - Open listings in the native app or browser; verify badges/metadata look sane.
+
+            ## Known beta quirks
+            - Still in beta—if you spot gremlins, file an issue with steps/logs. We fix fast and caffeinated.
+
+      # Upload APK to release
+      - name: Upload APK to release
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_name: app-release.apk
+          asset_content_type: application/vnd.android.package-archive
