@@ -1,60 +1,38 @@
-﻿<h3 align="center">JobSpy Mobile is being hardened for a stable, production-ready release. Nightly QA builds will be published here soon.</h3>
-<h4 align="center">Main development happens on <code>main</code>. Bugfix-only hot patches may land on <code>maintenance</code>.</h4>
+<h3 align="center">JobSpy Mobile is stable, production-ready, and allergic to flaky builds.</h3>
 
-<p align="center"><img src="assets/jobspy_logo.png" alt="JobSpy Mobile" width="140"></p>
+<p align="center"><img src="assets/images/jobspy_banner.png" alt="JobSpy Mobile" width="300"></p>
 <h2 align="center"><b>JobSpy Mobile</b></h2>
-<h4 align="center">A lightweight Flutter client for the JobSpy API to check health, search LinkedIn/Indeed, and open listings fast.</h4>
+<h4 align="center">A Flutter app that scrapes fresh LinkedIn/Indeed gigs so you spend less time tab-juggling and more time choosing which swag hoodie to wear.</h4>
 
 <p align="center">
-<a href="https://github.com/ibbidope/jobspy_mobile/releases" alt="JobSpy Mobile releases"><img src="https://img.shields.io/badge/downloads-coming%20soon-inactive"></a>
-<a href="https://www.gnu.org/licenses/gpl-3.0" alt="License: GPLv3"><img src="https://img.shields.io/badge/license-TBD-blue.svg"></a>
-<a href="https://github.com/ibbidope/jobspy_mobile/actions" alt="Build Status"><img src="https://img.shields.io/badge/ci-coming%20soon-lightgrey"></a>
+<a href="https://github.com/ibbidope/jobspy_mobile/releases" alt="JobSpy Mobile releases"><img src="https://img.shields.io/badge/release-stable-brightgreen"></a>
+<a href="https://www.gnu.org/licenses/gpl-3.0" alt="License: GPLv3"><img src="https://img.shields.io/badge/license-GPLv3-blue.svg"></a>
+<a href="https://github.com/ibbidope/jobspy_mobile/actions" alt="Build Status"><img src="https://img.shields.io/badge/ci-main-blue"></a>
 </p>
 
 <p align="center">
-<a href="#screenshots">Screenshots</a> &bull; <a href="#supported-sources">Supported Sources</a> &bull; <a href="#description">Description</a> &bull; <a href="#features">Features</a> &bull; <a href="#installation-and-updates">Installation and updates</a> &bull; <a href="#contribution">Contribution</a> &bull; <a href="#privacy">Privacy</a>
+<a href="#quickstart">Quickstart</a> &bull; <a href="#features">Features</a> &bull; <a href="#supported-sources">Supported Sources</a> &bull; <a href="#screenshots">Screenshots</a> &bull; <a href="#privacy">Privacy</a> &bull; <a href="#contributing">Contributing</a>
 </p>
 <hr>
 
-> [!warning]
-> THIS APP IS IN BETA. YOU MAY ENCOUNTER BUGS. PLEASE OPEN ISSUES WITH CLEAR REPRO STEPS.
+## Features
 
-## Screenshots
-
-Coming soon (health check, search form, job results).
+- Health check that admits when the service is down instead of gaslighting you.
+- Unified search for LinkedIn and Indeed; pick sources like toggling feature flags.
+- Instant launch to the native app or browser so you can apply faster than your coffee cools.
+- GetX-driven state/routing for snappy navigation—no setState whack-a-mole.
+- Input validation for search term, location, results count, hours old, and country (only when Indeed is selected).
+- Debug-only network logging; production stays as quiet as a server room at 3 a.m.
 
 ## Supported Sources
 
-- LinkedIn (via JobSpy API)
-- Indeed (via JobSpy API)
+- LinkedIn (scraped via backend)
+- Indeed (scraped via backend)
 
-## Description
+## Screenshots
 
-JobSpy Mobile pairs a responsive Flutter UI with the JobSpy API so you can:
-- Verify API health instantly with an animated status card.
-- Run LinkedIn/Indeed searches in one place, pick which sites to query, and fetch LinkedIn descriptions when needed.
-- Launch job links in the native app or browser with a tap.
-- See job metadata at a glance (company, location, type, site badge).
-
-## Features
-
-- GetX-powered state, routing, and bindings for fast navigation and predictable updates.
-- Validations for search term, location, results count, hours old, and Indeed country (only when Indeed is selected).
-- Clear error and “no results” messaging; safe defaults for missing env/config.
-- Debug-only network logging to avoid leaking data in production.
-
-## Installation and updates
-
-- Stable releases: coming soon via GitHub Releases.
-- Nightly/QA: coming soon.
-- Source build: `flutter pub get` then `flutter run` with a `.env` containing `API_BASE_URL`.
-
-## Contribution
-
-- Target `main` for feature work; keep changes small and covered by tests (`flutter test`).
-- Regenerate JSON model code if model fields change.
-- Add controller and widget tests when adding new user-facing behaviors.
+Coming soon (health check, search form, job results). Imagine tasteful gradients and zero spinner storms.
 
 ## Privacy
 
-JobSpy Mobile does not collect analytics. Network calls go directly to the configured JobSpy API endpoint. External links (job URLs) open via the platform browser/app.
+No analytics, no secret trackers. Calls go straight to our configured backend. External job links (job URLs) open via the platform browser/app.
