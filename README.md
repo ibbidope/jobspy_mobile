@@ -1,7 +1,7 @@
 ﻿<h3 align="center">JobSpy Mobile is being hardened for a stable, production-ready release. Nightly QA builds will be published here soon.</h3>
 <h4 align="center">Main development happens on <code>main</code>. Bugfix-only hot patches may land on <code>maintenance</code>.</h4>
 
-<p align="center"><img src="assets/jobspy_logo.png" alt="JobSpy Mobile" width="140"></p>
+<p align="center"><img src="assets/images/jobspy_logo.png" alt="JobSpy Mobile" width="240"></p>
 <h2 align="center"><b>JobSpy Mobile</b></h2>
 <h4 align="center">A lightweight Flutter client for the JobSpy API to check health, search LinkedIn/Indeed, and open listings fast.</h4>
 
@@ -31,6 +31,7 @@ Coming soon (health check, search form, job results).
 ## Description
 
 JobSpy Mobile pairs a responsive Flutter UI with the JobSpy API so you can:
+
 - Verify API health instantly with an animated status card.
 - Run LinkedIn/Indeed searches in one place, pick which sites to query, and fetch LinkedIn descriptions when needed.
 - Launch job links in the native app or browser with a tap.
