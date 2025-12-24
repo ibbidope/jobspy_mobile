@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'app_binding.dart';
 import 'routes/app_pages.dart';
+import 'shared/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
               getPages: AppPages.routes,
               initialBinding: AppBinding(),
               smartManagement: SmartManagement.keepFactory,
+              theme: AppTheme.light(),
               builder: (context, child) {
                 return MediaQuery(
                   data: MediaQuery.of(
