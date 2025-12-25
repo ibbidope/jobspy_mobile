@@ -30,7 +30,11 @@ class HomeView extends GetView<HomeController> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset('assets/images/app_icon_transparent.png', width: 180.w),
+            Image.asset(
+              'assets/images/app_icon_transparent.png',
+              width: 180.w,
+              key: const Key('appbar-logo'),
+            ),
           ],
         ),
       ),

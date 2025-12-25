@@ -8,6 +8,9 @@ import 'package:jobspy_mobile/api/api_repository.dart';
 import 'package:jobspy_mobile/models/models.dart';
 import 'package:jobspy_mobile/modules/home/home_controller.dart';
 import 'package:jobspy_mobile/modules/home/home_view.dart';
+import 'package:jobspy_mobile/modules/splash/splash_controller.dart';
+import 'package:jobspy_mobile/modules/splash/splash_view.dart';
+import 'package:jobspy_mobile/routes/routes.dart';
 
 void main() {
   setUp(() {
@@ -80,9 +83,49 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('JobSpy Mobile'), findsOneWidget);
+    expect(find.byKey(const Key('appbar-logo')), findsOneWidget);
     expect(find.text('Job Search'), findsOneWidget);
     expect(find.textContaining('API Health'), findsOneWidget);
+  });
+
+  testWidgets('SplashView shows branding and status line', (tester) async {
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(360, 690),
+        minTextAdapt: true,
+        builder: (context, _) => GetMaterialApp(
+          home: const SplashView(),
+          getPages: [
+            GetPage(
+              name: Routes.home,
+              page: () =>
+                  const Scaffold(body: Center(child: Text('Home placeholder'))),
+            ),
+            GetPage(name: Routes.splash, page: () => const SplashView()),
+          ],
+          initialBinding: BindingsBuilder(() {
+            Get.put<SplashController>(
+              SplashController(apiRepository: _FakeApiRepository()),
+            );
+          }),
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(find.byType(Image), findsWidgets);
+    expect(
+      find.text(
+        'Bringing LinkedIn & Indeed to your fingertips - no tabs, no chaos.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Standby for awesomeness!'), findsOneWidget);
+
+    // Let the splash timer complete to avoid pending timer assertion.
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
   });
 }
 
