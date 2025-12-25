@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-<a href="#quickstart">Quickstart</a> &bull; <a href="#features">Features</a> &bull; <a href="#supported-sources">Supported Sources</a> &bull; <a href="#screenshots">Screenshots</a> &bull; <a href="#privacy">Privacy</a> &bull; <a href="#contributing">Contributing</a>
+<a href="#features">Features</a> &bull; <a href="#supported-sources">Supported Sources</a> &bull; <a href="#screenshots">Screenshots</a> &bull; <a href="#privacy">Privacy</a> &bull; <a href="#apk-info">APK Info</a>
 </p>
 <hr>
 
@@ -20,7 +20,7 @@
 - Health check that admits when the service is down instead of gaslighting you.
 - Unified search for LinkedIn and Indeed; pick sources like toggling feature flags.
 - Instant launch to the native app or browser so you can apply faster than your coffee cools.
-- GetX-driven state/routing for snappy navigation—no setState whack-a-mole.
+- GetX-driven state/routing for snappy navigation - no setState whack-a-mole.
 - Input validation for search term, location, results count, hours old, and country (only when Indeed is selected).
 - Debug-only network logging; production stays as quiet as a server room at 3 a.m.
 
@@ -36,3 +36,19 @@ Coming soon (health check, search form, job results). Imagine tasteful gradients
 ## Privacy
 
 No analytics, no secret trackers. Calls go straight to our configured backend. External job links (job URLs) open via the platform browser/app.
+
+## APK Info
+
+This is the SHA-256 fingerprint of the JobSpy Mobile signing certificate. Use it to verify that downloaded APKs are authentically signed by us.
+
+```
+9B:6E:84:21:84:3B:70:6B:3A:3B:A8:9D:45:FD:15:7D:99:73:6E:00:5C:61:7D:40:27:E1:49:4E:56:16:7F:C3
+```
+
+**To verify an APK:**
+
+```bash
+apksigner verify --print-certs app-release.apk
+```
+
+The certificate SHA-256 digest should match the fingerprint above.
