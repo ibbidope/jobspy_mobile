@@ -35,21 +35,29 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchHealth();
+    _applyInitialHealth();
+    if (!_hasInitialHealth) {
+      fetchHealth();
+    }
   }
 
   Future<void> fetchHealth() async {
     isCheckingHealth.value = true;
     healthError.value = null;
+    healthStatus.value = 'checking';
     try {
       final result = await apiRepository.getHealth();
-      if (result != null) {
-        healthStatus.value = result.status;
+      if (result != null &&
+          (result.status.toLowerCase() == 'ok' ||
+              result.status.toLowerCase() == 'healthy')) {
+        healthStatus.value = 'online';
       } else {
-        healthStatus.value = 'unknown';
+        healthStatus.value = 'offline';
+        healthError.value = 'Service reported unhealthy';
       }
     } catch (e) {
       healthError.value = 'Failed to check service health';
+      healthStatus.value = 'offline';
     } finally {
       isCheckingHealth.value = false;
     }
@@ -189,4 +197,21 @@ class HomeController extends GetxController {
 
   void setLinkedinFetchDescription(bool value) =>
       linkedinFetchDescription.value = value;
+
+  void _applyInitialHealth() {
+    final args = Get.arguments;
+    if (args is Map) {
+      final status = args['healthStatus'] as String?;
+      final error = args['healthError'] as String?;
+      if (status != null) {
+        healthStatus.value = status;
+      }
+      if (error != null) {
+        healthError.value = error;
+      }
+    }
+  }
+
+  bool get _hasInitialHealth =>
+      healthStatus.value != null || healthError.value != null;
 }

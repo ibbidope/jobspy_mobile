@@ -15,7 +15,7 @@ class HomeView extends GetView<HomeController> {
   static const String _searchPlaceholder = 'e.g. Product Designer';
   static const String _locationPlaceholder = 'e.g. Islamabad, Pakistan';
   static const String _indeedCountryPlaceholder = 'e.g. Pakistan';
-  static const String _repoUrl = 'https://github.com/ibbidope';
+  static const String _repoUrl = 'https://github.com/ibbidope/jobspy_mobile';
   static const String _linkedInUrl =
       'https://www.linkedin.com/in/ibrahimhassan99/';
 
@@ -27,20 +27,10 @@ class HomeView extends GetView<HomeController> {
         backgroundColor: ColorConstants.surface,
         elevation: 0,
         centerTitle: true,
-        title: Column(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'JobSpy Mobile',
-              style: TextStyle(
-                color: ColorConstants.primary,
-                fontWeight: FontWeight.w700,
-                fontSize: 18.sp,
-              ),
-            ),
-            Text(
-              'Scrape LinkedIn & Indeed',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12.sp),
-            ),
+            Image.asset('assets/images/app_icon_transparent.png', width: 180.w),
           ],
         ),
       ),
@@ -269,16 +259,18 @@ class HomeView extends GetView<HomeController> {
 
       Color statusColor;
       String label;
-      if (status != null &&
-          (status.toLowerCase() == 'ok' || status.toLowerCase() == 'healthy')) {
+      if (isLoading || status?.toLowerCase() == 'checking') {
+        statusColor = Colors.orange;
+        label = 'Checking...';
+      } else if (status != null && status.toLowerCase() == 'online') {
         statusColor = Colors.green;
         label = 'Online';
-      } else if (status == null) {
-        statusColor = Colors.grey;
-        label = 'Down Time';
-      } else {
+      } else if (status != null && status.toLowerCase() == 'offline') {
         statusColor = Colors.red;
-        label = status;
+        label = 'Offline';
+      } else {
+        statusColor = Colors.grey;
+        label = 'Unknown';
       }
 
       return AppCard(
