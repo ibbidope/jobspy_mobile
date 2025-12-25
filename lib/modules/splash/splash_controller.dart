@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../api/api.dart';
 import '../../routes/app_pages.dart';
+import 'dart:async';
 
 class SplashController extends GetxController {
   SplashController({required this.apiRepository});
@@ -10,6 +11,7 @@ class SplashController extends GetxController {
 
   String? _initialHealthStatus;
   String? _initialHealthError;
+  Timer? _navigationTimer;
 
   @override
   void onReady() {
@@ -17,11 +19,23 @@ class SplashController extends GetxController {
     _prepareAndNavigate();
   }
 
+  @override
+  void onClose() {
+    _navigationTimer?.cancel();
+    _navigationTimer = null;
+    super.onClose();
+  }
+
   Future<void> _prepareAndNavigate() async {
     final healthFuture = _checkHealth();
-    final waitFuture = Future.delayed(const Duration(seconds: 3));
+    final waitCompleter = Completer<void>();
+    _navigationTimer = Timer(const Duration(seconds: 3), () {
+      if (!waitCompleter.isCompleted) {
+        waitCompleter.complete();
+      }
+    });
 
-    await Future.wait([healthFuture, waitFuture]);
+    await Future.wait([healthFuture, waitCompleter.future]);
 
     if (isClosed) return;
     Get.offAllNamed(
