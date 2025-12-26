@@ -30,7 +30,7 @@ class HomeController extends GetxController {
   final RxInt resultsWanted = 10.obs;
   final RxInt hoursOld = 72.obs;
   final RxString countryIndeed = ''.obs;
-  final RxBool linkedinFetchDescription = false.obs;
+  // final RxBool linkedinFetchDescription = false.obs;
 
   @override
   void onInit() {
@@ -93,7 +93,7 @@ class HomeController extends GetxController {
       'location': location.value.trim(),
       'results_wanted': resultsWanted.value,
       'hours_old': hoursOld.value,
-      'linkedin_fetch_description': linkedinFetchDescription.value,
+      // 'linkedin_fetch_description': linkedinFetchDescription.value,
     };
 
     if (selectedSites.contains('indeed')) {
@@ -195,8 +195,8 @@ class HomeController extends GetxController {
     }
   }
 
-  void setLinkedinFetchDescription(bool value) =>
-      linkedinFetchDescription.value = value;
+  // void setLinkedinFetchDescription(bool value) =>
+  //     linkedinFetchDescription.value = value;
 
   void _applyInitialHealth() {
     final args = Get.arguments;
