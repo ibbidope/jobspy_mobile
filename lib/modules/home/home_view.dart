@@ -391,13 +391,13 @@ class HomeView extends GetView<HomeController> {
               ),
               SizedBox(height: 6.h),
             ],
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('LinkedIn fetch description'),
-              value: controller.linkedinFetchDescription.value,
-              onChanged: controller.setLinkedinFetchDescription,
-            ),
-            SizedBox(height: 6.h),
+            // SwitchListTile(
+            //   contentPadding: EdgeInsets.zero,
+            //   title: const Text('LinkedIn fetch description'),
+            //   value: controller.linkedinFetchDescription.value,
+            //   onChanged: controller.setLinkedinFetchDescription,
+            // ),
+            // SizedBox(height: 6.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
