@@ -1,9 +1,10 @@
 name: Flutter CI/CD with Auto Bump & Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
 
 permissions:
   contents: write # allows tagging and creating releases
@@ -118,5 +119,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: build/app/outputs/flutter-apk/app-release.apk
-          asset_name: app-release.apk
+          asset_name: jobspy-${{ env.NEW_TAG }}.apk
           asset_content_type: application/vnd.android.package-archive
