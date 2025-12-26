@@ -575,9 +575,9 @@ class _JobTile extends StatelessWidget {
           SizedBox(height: 10.h),
           Row(
             children: [
-              if (job.jobUrl != null || job.jobUrlDirect != null)
+              if (job.jobUrl != null)
                 TextButton.icon(
-                  onPressed: () => _openJobLink(job.jobUrlDirect ?? job.jobUrl),
+                  onPressed: () => _openJobLink(job.jobUrl),
                   icon: const Icon(Icons.open_in_new),
                   label: const Text('Open job page'),
                 ),
@@ -589,8 +589,8 @@ class _JobTile extends StatelessWidget {
   }
 }
 
-Future<void> _openJobLink(String? url) async {
-  if (url == null) {
+Future<void> _openJobLink(String? jobUrl) async {
+  if (jobUrl == null) {
     Get.snackbar(
       'Link unavailable',
       'No URL provided for this job',
@@ -599,18 +599,12 @@ Future<void> _openJobLink(String? url) async {
     return;
   }
 
-  final uri = Uri.tryParse(url);
-  if (uri == null) {
-    Get.snackbar('Invalid link', url, duration: const Duration(seconds: 3));
-    return;
-  }
+  final Uri uri = Uri.parse(jobUrl);
 
-  final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-
-  if (!launched) {
+  if (!await launchUrl(uri, mode: LaunchMode.platformDefault)) {
     Get.snackbar(
       'Could not open link',
-      url,
+      uri.toString(),
       duration: const Duration(seconds: 3),
     );
   }
