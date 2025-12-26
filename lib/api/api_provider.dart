@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'api_constants.dart';
 
@@ -13,11 +15,29 @@ class ApiProvider {
           connectTimeout: const Duration(seconds: 20),
           receiveTimeout: const Duration(seconds: 40),
           responseType: ResponseType.plain,
+          headers: {'X-API-Key': dotenv.env['JOBSPY_API_KEY']},
         ),
       ) {
     if (kDebugMode) {
       _dio.interceptors.add(
-        LogInterceptor(requestBody: true, responseBody: true),
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseBody: true,
+          responseHeader: false,
+          error: true,
+          compact: true,
+          maxWidth: 90,
+          enabled: kDebugMode,
+          // filter: (options, args) {
+          //   // don't print requests with uris containing '/posts'
+          //   if (options.path.contains('/posts')) {
+          //     return false;
+          //   }
+          //   // don't print responses with unit8 list data
+          //   return !args.isResponse || !args.hasUint8ListData;
+          // },
+        ),
       );
     }
   }

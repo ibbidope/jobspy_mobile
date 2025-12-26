@@ -45,7 +45,10 @@ jobs:
       - name: Create .env
         env:
           API_BASE_URL: ${{ secrets.API_BASE_URL }}
-        run: echo "API_BASE_URL=$API_BASE_URL" >> .env
+          JOBSPY_API_KEY: ${{ secrets.JOBSPY_API_KEY }}
+        run: |
+          echo "API_BASE_URL=$API_BASE_URL" > .env
+          echo "JOBSPY_API_KEY=$JOBSPY_API_KEY" >> .env
 
       # Setup Flutter
       - name: Set up Flutter
