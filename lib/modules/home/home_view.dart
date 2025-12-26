@@ -389,7 +389,7 @@ class HomeView extends GetView<HomeController> {
                 onChanged: controller.setCountryIndeed,
                 hasError: controller.countryInvalid.value,
               ),
-              SizedBox(height: 6.h),
+              // SizedBox(height: 6.h),
             ],
             // SwitchListTile(
             //   contentPadding: EdgeInsets.zero,
@@ -397,7 +397,7 @@ class HomeView extends GetView<HomeController> {
             //   value: controller.linkedinFetchDescription.value,
             //   onChanged: controller.setLinkedinFetchDescription,
             // ),
-            // SizedBox(height: 6.h),
+            SizedBox(height: 10.h),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
